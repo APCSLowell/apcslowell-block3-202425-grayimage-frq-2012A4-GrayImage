@@ -1,0 +1,29 @@
+name: Autograding Tests
+'on':
+- workflow_dispatch
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: GrayImage Test
+      id: grayimage-test
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: GrayImage Test
+        setup-command: ''
+        command: gradle test
+        timeout: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        GRAYIMAGE-TEST_RESULTS: "${{steps.grayimage-test.outputs.result}}"
+      with:
+        runners: grayimage-test
